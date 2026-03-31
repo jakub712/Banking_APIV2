@@ -12,3 +12,4 @@ bankingApp.db
 
 # vscode
 .vscode/
+venv/
