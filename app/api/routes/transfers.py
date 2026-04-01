@@ -1,16 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from pydantic import BaseModel
 from app.db.models import User, Account, Transaction
-from app.db.session import SessionLocal
-from typing import Annotated
-from sqlalchemy.orm import Session
 from starlette import status
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from app.schemas import auth
-from app.api.routes.deps import db_dependency, get_db, user_dependancy
+from app.api.routes.deps import db_dependency, user_dependancy
 from app.schemas.transaction import Transfer_Request, Deposit_Request, Withdraw_Request
 
 router = APIRouter(prefix='/transactions', tags=['tranactions'])
@@ -20,7 +11,7 @@ router = APIRouter(prefix='/transactions', tags=['tranactions'])
 async def deposit_money(user: user_dependancy, db: db_dependency, deposit_request: Deposit_Request):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    account = db.query(Account).filter(Account.user_id == User.id).first()
+    account = db.query(Account).filter(Account.user_id == user['id']).first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
     account.balance_pence += deposit_request.amount_pence
@@ -41,7 +32,7 @@ async def deposit_money(user: user_dependancy, db: db_dependency, deposit_reques
 async def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_request:Withdraw_Request):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    account = db.query(Account).filter(Account.user_id == User.id).first()
+    account = db.query(Account).filter(Account.user_id == user['id']).first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
     if account.balance_pence < withdraw_request.amount_pence:
@@ -64,7 +55,7 @@ async def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_reque
 async def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Transfer_Request, user_id:int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    sender_account = db.query(Account).filter(Account.user_id == User.id).first()
+    sender_account = db.query(Account).filter(Account.user_id == user['id']).first()
     resiver_account = db.query(Account).filter(Account.user_id == user_id) .first()
     if sender_account is None or resiver_account is None:
         raise HTTPException(status_code=404, detail='bank account does not exsist')
@@ -91,7 +82,7 @@ async def transfer_money(user: user_dependancy, db:db_dependency, transfer_reque
 async def all_transactions_for_user(user: user_dependancy,db:db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    account = db.query(Account).filter(Account.user_id == User.id).first()
+    account = db.query(Account).filter(Account.user_id == user['id']).first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='account not found')
     outgoing_transactions = db.query(Transaction).filter(Transaction.from_account_id == account.id).all()

@@ -1,6 +1,6 @@
 from datetime import datetime
 from app.db.session import Base
-from sqlalchemy import Column, DateTime, ForeignKey, String, Integer, Float, Boolean
+from sqlalchemy import Column, DateTime, ForeignKey, String, Integer
 
 class User(Base):
     __tablename__ = "User"

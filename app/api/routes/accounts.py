@@ -1,17 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Path
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
 from app.db.models import User, Account
-from app.db.session import SessionLocal
-from typing import Annotated
-from sqlalchemy.orm import Session
 from starlette import status
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from datetime import datetime, timedelta, timezone
-from app.schemas import auth
-from app.api.routes.deps import db_dependency, get_db, user_dependancy
-from app.schemas.auth import Token, CreateUserRequest
+from app.api.routes.deps import db_dependency, user_dependancy
 
 router = APIRouter(prefix='/accounts', tags=['accounts'])
 
@@ -25,6 +15,7 @@ def create_account(user:user_dependancy, db:db_dependency):
     account = Account(
         user_id = user["id"],
         balance_pence = 0,
+        account_type = "current"
     )
     db.add(account)
     db.commit()

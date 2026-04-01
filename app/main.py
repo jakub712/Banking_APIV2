@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from app.db.session import engine, SessionLocal, Base
-from app.db.models import User, Account, Transaction
+from app.db.session import engine
 from app.db import models
 from app.api.routes import accounts, auth, transfers
 
