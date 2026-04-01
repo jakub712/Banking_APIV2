@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from app.db.models import User, Account
 from starlette import status
 from app.api.routes.deps import db_dependency, user_dependancy
