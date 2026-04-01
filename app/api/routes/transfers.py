@@ -54,7 +54,7 @@ async def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_reque
 
         db.commit()
         db.refresh(account)
-        return{'messege':f'Successfully withdrawn {withdraw_request.amount_pence/100:.2f}, your new balance is {account.balance_pence/100:.2f}'}
+        return{'message':f'Successfully withdrawn {withdraw_request.amount_pence/100:.2f}, your new balance is {account.balance_pence/100:.2f}'}
     except Exception:
         db.rollback()
         raise HTTPException(status_code=500, detail='an error occurred while processing your request')

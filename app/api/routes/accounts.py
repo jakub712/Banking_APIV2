@@ -24,7 +24,7 @@ def create_account(user:user_dependancy, db:db_dependency):
         'account_id': account.id,
         'user_id':account.user_id,
         'balance': account.balance_pence,
-        'account_type': account
+        'account_type': account.account_type
     }
 
 @router.get("/get_user", status_code=status.HTTP_200_OK)
