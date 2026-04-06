@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-SECERET_KEY = os.getenv("SECERET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")  
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')

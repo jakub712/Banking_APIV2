@@ -20,7 +20,7 @@ def deposit_money(user: user_dependancy, db: db_dependency, deposit_request: Dep
             from_account_id = None,
             to_account_id = account.id,
             amount_pence = deposit_request.amount_pence,
-            status = 'Completed',
+            status = 'completed',
             user_id = user['id']
         )
         db.add(tx)
@@ -59,7 +59,7 @@ def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_request:Wit
         db.rollback()
         raise HTTPException(status_code=500, detail='an error occurred while processing your request')
 
-@router.post("/transfer/{user_id}", status_code=status.HTTP_200_OK)
+@router.post("/transfer/{account_id}", status_code=status.HTTP_200_OK)
 def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Transfer_Request, user_id:int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
@@ -76,7 +76,7 @@ def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Tra
             from_account_id = sender_account.id,
             to_account_id = resiver_account.id,
             amount_pence = transfer_request.amount_pence,
-            status = 'complete',
+            status = 'completed',
             user_id = user['id']
         )
         db.add(tx)

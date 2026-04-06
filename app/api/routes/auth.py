@@ -13,7 +13,7 @@ import os
 
 load_dotenv()
 
-SECERET_KEY = os.getenv("SECERET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")  
 
 router = APIRouter(prefix='/auth', tags = ['auth'])
