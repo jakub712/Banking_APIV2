@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from app.db.session import engine
-from app.db import models
-from app.api.routes import accounts, auth, transfers
+from db.session import engine
+from db import models
+from api.routes import accounts, auth, transfers
 
 app = FastAPI()
 

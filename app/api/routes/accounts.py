@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from app.db.models import User, Account
+from db.models import User, Account
 from starlette import status
-from app.api.routes.deps import db_dependency, user_dependancy
+from api.routes.deps import db_dependency, user_dependancy
 
 router = APIRouter(prefix='/accounts', tags=['accounts'])
 
@@ -28,7 +28,7 @@ def create_account(user:user_dependancy, db:db_dependency):
     }
 
 @router.get("/get_user", status_code=status.HTTP_200_OK)
-async def get_user_details(user:user_dependancy, db:db_dependency):
+def get_user_details(user:user_dependancy, db:db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     user_model = db.query(User).filter(user['id'] == User.id).first()

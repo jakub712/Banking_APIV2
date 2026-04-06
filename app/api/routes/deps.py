@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from app.db.session import SessionLocal
+from db.session import SessionLocal
 from typing import Annotated
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -23,7 +23,7 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
-async def get_current_user(token:Annotated[str, Depends(oauth2_bearer)]):
+def get_current_user(token:Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = jwt.decode(token, SECERET_KEY, algorithms=[ALGORITHM])
         username:str = payload.get('sub')

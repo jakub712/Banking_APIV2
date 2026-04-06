@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from app.db.models import User, Transaction
+from db.models import User, Transaction
 from typing import Annotated
 from starlette import status
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from datetime import datetime, timedelta, timezone
-from app.api.routes.deps import db_dependency, user_dependancy
-from app.schemas.auth import Token, CreateUserRequest
+from api.routes.deps import db_dependency, user_dependancy
+from schemas.auth import Token, CreateUserRequest
 from dotenv import load_dotenv
 import os
 
@@ -22,7 +22,7 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated = 'auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
-async def create_user( db:db_dependency, create_user_request:CreateUserRequest):
+def create_user( db:db_dependency, create_user_request:CreateUserRequest):
     user_model = User(
         username = create_user_request.username,
         first_name = create_user_request.first_name,
@@ -32,6 +32,7 @@ async def create_user( db:db_dependency, create_user_request:CreateUserRequest):
     )
     db.add(user_model)
     db.commit()
+    return {"created user:" "username": user_model.username, "first_name": user_model.first_name}
 
 def authenticate_user(username:str, password:str, db):
     users = db.query(User).filter(User.username == username).first()
@@ -49,7 +50,7 @@ def create_access_token(username:str, user_id:int, role: str, expires_delta:time
 
     
 @router.post("/token", include_in_schema=False, response_model=Token)
-async def login_for_access_token(form_data:Annotated[OAuth2PasswordRequestForm, Depends()], db:db_dependency):
+def login_for_access_token(form_data:Annotated[OAuth2PasswordRequestForm, Depends()], db:db_dependency):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='wrong credentials')
@@ -57,7 +58,7 @@ async def login_for_access_token(form_data:Annotated[OAuth2PasswordRequestForm, 
     return{'access_token':token, 'token_type':'bearer'}
 
 @router.post("/create_admin",status_code=status.HTTP_200_OK)
-async def create_admin(db:db_dependency, user:user_dependancy):
+def create_admin(db:db_dependency, user:user_dependancy):
     admins =  db.query(User).filter(User.role == 'admin').count()
     if admins > 0:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='an admin already exsists')
@@ -72,7 +73,7 @@ async def create_admin(db:db_dependency, user:user_dependancy):
     return {'messege':f'{user_model.username} has been promoted to admin'}
 
 @router.post("/promote/{user_id}", status_code=status.HTTP_200_OK)
-async def promote_to_admin_invite(db:db_dependency, user:user_dependancy, user_id:int = Path(gt=0)):
+def promote_to_admin_invite(db:db_dependency, user:user_dependancy, user_id:int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     user_model = db.query(User).filter(User.id == user['id']).first()
@@ -89,7 +90,7 @@ async def promote_to_admin_invite(db:db_dependency, user:user_dependancy, user_i
     return {'messege':f'{user_model2.username} has been promoted to admin'}
 
 @router.get("/all_users", status_code= status.HTTP_200_OK)
-async def read_all_users(db:db_dependency, user:user_dependancy):
+def read_all_users(db:db_dependency, user:user_dependancy):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     user_model = db.query(User).filter(User.id == user['id']).first()
@@ -99,7 +100,7 @@ async def read_all_users(db:db_dependency, user:user_dependancy):
     return all_users
 
 @router.get("/all_transactions", status_code=status.HTTP_200_OK)
-async def read_all_transactions(db:db_dependency, user:user_dependancy):
+def read_all_transactions(db:db_dependency, user:user_dependancy):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     user_model = db.query(User).filter(User.id == user['id']).first()
@@ -109,7 +110,7 @@ async def read_all_transactions(db:db_dependency, user:user_dependancy):
     return all_transactions
 
 @router.get("/{user_name}", status_code=status.HTTP_200_OK)
-async def get_user(user: user_dependancy,db:db_dependency, user_name:str):
+def get_user(user: user_dependancy,db:db_dependency, user_name:str):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     user_m = db.query(User).filter(User.id == user['id']).first()
