@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from db.models import User, Account, Transaction
+from app.db.models import User, Account, Transaction
 from starlette import status
-from api.routes.deps import db_dependency, user_dependancy
-from schemas.transaction import Transfer_Request, Deposit_Request, Withdraw_Request
+from app.api.routes.deps import db_dependency, user_dependancy
+from app.schemas.transaction import Transfer_Request, Deposit_Request, Withdraw_Request
 
 router = APIRouter(prefix='/transactions', tags=['tranactions'])
 
@@ -60,11 +60,11 @@ def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_request:Wit
         raise HTTPException(status_code=500, detail='an error occurred while processing your request')
 
 @router.post("/transfer/{account_id}", status_code=status.HTTP_200_OK)
-def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Transfer_Request, user_id:int = Path(gt=0)):
+def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Transfer_Request, account_id:int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
     sender_account = db.query(Account).filter(Account.user_id == user['id']).first()
-    resiver_account = db.query(Account).filter(Account.id == user_id) .first()
+    resiver_account = db.query(Account).filter(Account.id == account_id) .first()
     if sender_account is None or resiver_account is None:
         raise HTTPException(status_code=404, detail='bank account does not exsist')
     if sender_account.balance_pence < transfer_request.amount_pence:

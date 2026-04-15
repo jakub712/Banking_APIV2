@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
-from db.models import User, Transaction
+from app.db.models import User, Transaction
 from typing import Annotated
 from starlette import status
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from datetime import datetime, timedelta, timezone
-from api.routes.deps import db_dependency, user_dependancy
-from schemas.auth import Token, CreateUserRequest
+from app.api.routes.deps import db_dependency, user_dependancy
+from app.schemas.auth import Token, CreateUserRequest
 from dotenv import load_dotenv
 import os
 
@@ -46,7 +46,7 @@ def create_access_token(username:str, user_id:int, role: str, expires_delta:time
     encode = {'sub':username, 'id':user_id, 'role':role}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp':expires})
-    return jwt.encode(encode, SECERET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
     
 @router.post("/token", include_in_schema=False, response_model=Token)

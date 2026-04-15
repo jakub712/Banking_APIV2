@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from db.models import User, Account
+from app.db.models import User, Account
 from starlette import status
-from api.routes.deps import db_dependency, user_dependancy
+from app.api.routes.deps import db_dependency, user_dependancy
 
 router = APIRouter(prefix='/accounts', tags=['accounts'])
 

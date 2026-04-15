@@ -2,8 +2,8 @@ import sys
 sys.path.insert(0, './app')
 
 from main import app
-from api.routes.deps import get_db, get_current_user
-from db.session import Base
+from app.api.routes.deps import get_db, get_current_user
+from app.db.session import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool

@@ -4,7 +4,7 @@ sys.path.insert(0, './app')
 from deps import engine, client, TestingSessionLocal
 import pytest
 from fastapi import status
-from db.models import User
+from app.db.models import User
 from sqlalchemy import text
 
 @pytest.fixture
