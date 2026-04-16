@@ -9,9 +9,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
-SQLALCHEMY_DATABASE_URL = 'sqlite:///:memory:'
+SQLALCHEMY_DATABASE_URL_Testing = 'sqlite:///:memory:'
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    SQLALCHEMY_DATABASE_URL_Testing,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool
 )
