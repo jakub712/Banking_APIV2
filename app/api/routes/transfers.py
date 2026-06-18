@@ -11,7 +11,7 @@ router = APIRouter(prefix='/transactions', tags=['tranactions'])
 def deposit_money(user: user_dependancy, db: db_dependency, deposit_request: Deposit_Request):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    account = db.query(Account).filter(Account.user_id == user['id']).first()
+    account = db.query(Account).filter(Account.user_id == user['id']).with_for_update().first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
     try:
@@ -36,7 +36,7 @@ def deposit_money(user: user_dependancy, db: db_dependency, deposit_request: Dep
 def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_request:Withdraw_Request):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    account = db.query(Account).filter(Account.user_id == user['id']).first()
+    account = db.query(Account).filter(Account.user_id == user['id']).with_for_update().first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
     if account.balance_pence < withdraw_request.amount_pence:
@@ -63,8 +63,8 @@ def withdraw_money(user: user_dependancy, db:db_dependency, withdraw_request:Wit
 def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Transfer_Request, account_id:int = Path(gt=0)):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')
-    sender_account = db.query(Account).filter(Account.user_id == user['id']).first()
-    resiver_account = db.query(Account).filter(Account.id == account_id) .first()
+    sender_account = db.query(Account).filter(Account.user_id == user['id']).with_for_update().first()
+    resiver_account = db.query(Account).filter(Account.id == account_id).with_for_update().first()
     if sender_account is None or resiver_account is None:
         raise HTTPException(status_code=404, detail='bank account does not exsist')
     if sender_account.balance_pence < transfer_request.amount_pence:
