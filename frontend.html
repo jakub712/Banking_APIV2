@@ -502,11 +502,44 @@
   .toast.ok  { border-left-color: var(--success); }
   .toast.err { border-left-color: var(--danger);  }
 
+  /* ─── HAMBURGER ──────────────────────────────────── */
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 99;
+  }
+  .sidebar-overlay.show { display: block; }
+
   /* ─── RESPONSIVE ──────────────────────────────────── */
   @media (max-width: 640px) {
     .app-body { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
     .bal-amount { font-size: 36px; }
+    .hamburger { display: block; }
+    .sidebar {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 220px;
+      z-index: 100;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      padding-top: 3.5rem;
+    }
+    .sidebar.open { transform: translateX(0); }
   }
 </style>
 </head>
@@ -567,7 +600,10 @@
 <div class="screen" id="s-app">
 
   <header class="topbar">
-    <div class="top-logo">Vault<span>OS</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+      <div class="top-logo">Vault<span>OS</span></div>
+    </div>
     <div class="top-right">
       <span id="top-username"></span>
       <button class="btn-ghost" onclick="logout()">Sign Out</button>
@@ -576,8 +612,9 @@
 
   <div class="app-body">
 
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
     <!-- SIDEBAR -->
-    <nav class="sidebar" aria-label="Main navigation">
+    <nav class="sidebar" id="sidebar" aria-label="Main navigation">
       <p class="nav-section-label">Overview</p>
       <div class="nav-item on" onclick="showPanel('dashboard', this)" role="button" tabindex="0">
         <i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard
@@ -1077,6 +1114,7 @@
     if (id === 'history') loadTxList('hist-tx');
     if (id === 'dashboard') loadDashboard();
     if (id === 'admin') loadAdminUsers();
+    closeSidebar();
   }
 
   /* ── LOGOUT ──────────────────────────────────── */
@@ -1089,6 +1127,16 @@
     document.getElementById('s-app').classList.remove('show');
     document.getElementById('s-auth').classList.add('show');
     showPanel('dashboard', navItem(0));
+  }
+
+  /* ── MOBILE SIDEBAR ──────────────────────────── */
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('show');
   }
 
   /* ── KEYBOARD NAV ────────────────────────────── */
