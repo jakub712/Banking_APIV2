@@ -7,14 +7,17 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 from app.api.routes.deps import db_dependency, user_dependancy
-from app.schemas.auth import Token, CreateUserRequest
+from app.schemas.auth import Token, CreateUserRequest, UserOut
 from dotenv import load_dotenv
 import os
+from sqlalchemy.exc import IntegrityError
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")  
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+if not SECRET_KEY:
+    raise RuntimeError("SECERET_KEY is not set")  
 
 router = APIRouter(prefix='/auth', tags = ['auth'])
 
@@ -30,8 +33,12 @@ def create_user( db:db_dependency, create_user_request:CreateUserRequest):
         hashed_password = bcrypt_context.hash(create_user_request.password),
         role = "user"
     )
-    db.add(user_model)
-    db.commit()
+    db.add(user_model)#
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail='username alreadyin use')
     return {"created user:" "username": user_model.username, "first_name": user_model.first_name}
 
 def authenticate_user(username:str, password:str, db):
@@ -89,7 +96,7 @@ def promote_to_admin_invite(db:db_dependency, user:user_dependancy, user_id:int 
     db.commit()
     return {'messege':f'{user_model2.username} has been promoted to admin'}
 
-@router.get("/all_users", status_code= status.HTTP_200_OK)
+@router.get("/all_users", status_code= status.HTTP_200_OK, response_model=list[UserOut])
 def read_all_users(db:db_dependency, user:user_dependancy):
     if user is None:
         raise HTTPException(status_code=401, detail='authentication failed')

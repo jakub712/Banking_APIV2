@@ -12,6 +12,9 @@ def create_account(user:user_dependancy, db:db_dependency):
     user_model = db.query(User).filter(user['id'] == User.id).first()
     if user_model is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user not found')
+    existing = db.query(Account).filter(Account.user_id == user['id']).first()
+    if existing:
+        raise HTTPException(status_code=400, detail='user already has an account')
     account = Account(
         user_id = user["id"],
         balance_pence = 0,
