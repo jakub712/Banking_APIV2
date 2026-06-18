@@ -67,6 +67,8 @@ def transfer_money(user: user_dependancy, db:db_dependency, transfer_request:Tra
     resiver_account = db.query(Account).filter(Account.id == account_id).with_for_update().first()
     if sender_account is None or resiver_account is None:
         raise HTTPException(status_code=404, detail='bank account does not exsist')
+    if sender_account.id == account_id:
+        raise HTTPException(status_code=400, detail='cannot transfer to your own account')
     if sender_account.balance_pence < transfer_request.amount_pence:
         raise HTTPException(status_code=400, detail='not enough funds to process transaction')
     try: 
